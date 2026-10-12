@@ -3,6 +3,7 @@ import { TechMarquee } from "@/components/home/TechMarquee";
 import { StatsCounter } from "@/components/home/StatsCounter";
 import { FeaturedProjects } from "@/components/home/FeaturedProjects";
 import { ServicesGrid } from "@/components/home/ServicesGrid";
+import { ProcessStepper } from "@/components/home/ProcessStepper";
 import { TestimonialsCarousel } from "@/components/home/TestimonialsCarousel";
 import { LatestPosts } from "@/components/home/LatestPosts";
 import { CallToAction } from "@/components/home/CallToAction";
@@ -16,6 +17,7 @@ export default function HomePage() {
       <StatsCounter />
       <FeaturedProjects />
       <ServicesGrid />
+      <ProcessStepper />
       <Section className="overflow-hidden">
         <Container>
           <SectionHeader
