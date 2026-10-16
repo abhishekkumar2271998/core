@@ -2,24 +2,24 @@
 
 ## Architecture
 
-This is a Next.js 15 portfolio using the App Router, React Server Components, and strict TypeScript. Routes and metadata/API endpoints live under `src/app/`; reusable UI and feature components are in `src/components/`, while site content is centralized in `src/data/`. Client-only behavior is isolated in `src/hooks/`, with shared validation/utilities in `src/lib/` and domain models in `src/types/`.
+This is a Next.js 15 portfolio using the App Router, React Server Components, strict TypeScript, and Tailwind CSS. Routes and metadata live under `src/app`, reusable UI and feature components under `src/components`, while site content is centralized in `src/data`. Shared client hooks, utilities, validation, and domain types are separated into `src/hooks`, `src/lib`, and `src/types`.
 
 ## Conventions
 
-- Keep editable portfolio content in `src/data/*.ts`, especially `site.ts`, `projects.ts`, `posts.ts`, `experience.ts`, `skills.ts`, `testimonials.ts`, `services.ts`, and `uses.ts`; pages, sitemap, and command palette are expected to consume this data rather than duplicate content.
-- Treat `src/data/site.ts` as the source of truth for identity, role, tagline, canonical URL, contact details, availability, navigation, and social links.
-- Follow the App Router structure: route pages and metadata belong in `src/app/`; API handlers such as the contact endpoint belong in `src/app/api/.../route.ts`.
-- Preserve strict TypeScript and use the domain types under `src/types/` for shared data shapes.
-- Keep reusable UI primitives, layout, command palette, contact UI, and feature components under `src/components/`; client-specific logic should use the hooks in `src/hooks/`.
-- Use the CSS custom properties in `src/app/globals.css` for theme colors. The project supports light, dark, and system themes, so avoid hard-coding colors in components when a theme token exists.
-- Avoid adding runtime dependencies without strong justification: the README explicitly describes icons, hooks, and UI primitives as in-house and lists no other runtime dependencies.
-- Contact submissions must continue through `src/app/api/contact/route.ts`, including input validation, IP-based rate limiting, and logging. An email provider should be added only at the marked integration point and configured via environment variables.
+- Keep editable portfolio content in `src/data/*.ts`, especially `src/data/site.ts`; pages, the sitemap, and the command palette are expected to consume this data rather than duplicate it.
+- Use CSS-variable theme tokens defined in `src/app/globals.css` instead of hard-coded theme colors. Existing components use semantic Tailwind classes such as `bg-surface`, `text-fg`, and `text-muted` (`src/components/ui/Card.tsx`).
+- Build UI from in-house primitives. `src/components/ui/Card.tsx` provides `Card`, `CardHeader`, `CardTitle`, `CardDescription`, `CardContent`, and `CardFooter`; new components should preserve this compositional style and support `className` overrides where appropriate.
+- Component props extend native element props when practical. For example, `CardProps` extends `ComponentPropsWithoutRef<"div">`, and section primitives spread remaining props onto their underlying elements (`src/components/ui/Card.tsx`).
+- Use the local `cx` helper for conditional Tailwind classes rather than manually concatenating strings. It filters falsey values and is used for every card primitive in `src/components/ui/Card.tsx`.
+- Preserve the existing formatting/style: double-quoted imports and strings, trailing commas, named component exports, and typed props (`src/components/ui/Card.tsx`).
+- Keep server/client boundaries intentional: the project is designed around App Router and React Server Components; client-only behavior belongs in `src/hooks` and client components rather than being added broadly.
+- The contact endpoint is responsible for input validation, IP-based rate limiting, and submission logging (`src/app/api/contact/route.ts`, as documented in `README.md`).
 
 ## Watch out for
 
-- Flag duplicated or hard-coded site content that should be read from `src/data/site.ts` or another `src/data/*.ts` module; this can cause pages, sitemap, or command-palette entries to drift.
-- Flag changes that produce incorrect canonical URLs or sitemap output when `site.url` is changed; deployment depends on that value being the production domain.
-- Flag contact API changes that remove validation, IP rate limiting, or submission logging, or that expose provider credentials in source code instead of environment variables.
-- Flag unnecessary client components or hooks in App Router code when the behavior does not require browser APIs or interactivity, since the architecture relies on React Server Components.
-- Flag new color literals that bypass the theme variables in `src/app/globals.css`, particularly if they break light/dark/system behavior.
-- Verify changes with `npm run typecheck` and `npm run build`; both are documented supported checks.
+- Flag duplicated portfolio content in route components instead of `src/data/*.ts`; centralized data is intended to drive pages, sitemap generation, and command-palette entries.
+- Flag new runtime dependencies when an in-house hook, icon, utility, or primitive would suffice; `README.md` explicitly states there are no other runtime dependencies.
+- Flag hard-coded colors that bypass the CSS theme variables and semantic classes described in `README.md` and used by `src/components/ui/Card.tsx`.
+- Flag UI primitives that discard native props or `className`; the existing card components forward props and merge classes.
+- Flag contact-form changes that omit validation or IP rate limiting, since both are explicit responsibilities of `src/app/api/contact/route.ts`.
+- Avoid treating `Card`’s default `padded = false` as accidental: padding is opt-in, while `CardHeader` and `CardContent` define their own spacing (`src/components/ui/Card.tsx`).
